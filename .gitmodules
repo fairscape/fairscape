@@ -1,0 +1,30 @@
+[submodule "services/mds"]
+	path = services/mds
+	url = https://github.com/fairscape/mds
+[submodule "services/visualization"]
+	path = services/visualization
+	url = https://github.com/fairscape/visualization
+[submodule "services/auth"]
+	path = services/auth
+	url = https://github.com/fairscape/auth
+[submodule "services/search"]
+	path = services/search
+	url = https://github.com/fairscape/search
+[submodule "services/transfer"]
+	path = services/transfer
+	url = https://github.com/fairscape/transfer
+[submodule "services/evidence-graph"]
+	path = services/evidence-graph
+	url = https://github.com/fairscape/evidence-graph
+[submodule "services/computation"]
+	path = services/computation
+	url = https://github.com/fairscape/computation
+[submodule "demo"]
+	path = demo
+	url = https://github.com/fairscape/demo
+[submodule "clients/python-auth"]
+	path = clients/python-auth
+	url = https://github.com/fairscape/python-auth
+[submodule "clients/python-client"]
+	path = clients/python-client
+	url = https://github.com/fairscape/python-client
