@@ -9,7 +9,7 @@ This tutorial will cover how to setup and install a **FAIRSCAPE** cluster and co
 # Requirements
  - Kubernetes Cluster ([HOW TO HERE](http://example.com/))
  - Kubectl installed and configured with cluster
- - FAIRSCAPE Kubernetes Manifest  ([Avaiable HERE](https://github.com/fairscape/deployment))
+ - FAIRSCAPE Kubernetes Manifest ([Avaiable HERE](https://github.com/fairscape/deployment))
 
 ## Create all pods and services
 Create all necessary pods with simple kubectl create command
