@@ -7,7 +7,7 @@ This repo contains all code for all fairscape framework components and clients.
 This tutorial will cover how to setup and install a **FAIRSCAPE** cluster and cover some of the basic API calls.  
 
 # Requirements
- - Kubernetes Cluster ([HOW TO HERE](http://example.com/))
+ - Kubernetes Cluster ([HOW TO HERE](https://kubernetes.io/docs/setup/))
  - Kubectl installed and configured with cluster
  - FAIRSCAPE Kubernetes Manifest ([Avaiable HERE](https://github.com/fairscape/deployment))
 
