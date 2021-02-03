@@ -11,4 +11,4 @@ FAIRSCAPE can run nested or disjoint workflows and preserves provenance across t
 
 ## Documentation
 
-Install instructions and documentation: [HERE](https://fairscape.github.io/)
+Install instructions, API documentation, and Demo: [HERE](https://fairscape.github.io/)
