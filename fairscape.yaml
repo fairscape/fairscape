@@ -1,0 +1,563 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  containers:
+  - name: minio
+    image: minio/minio:RELEASE.2020-02-20T22-51-23Z
+    args:
+      - server
+      - /data
+    env:
+      - name: MINIO_ACCESS_KEY
+        value: "breakfast"
+      - name: MINIO_SECRET_KEY
+        value: "breakfast"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  selector:
+    app: minio
+  type: NodePort
+  ports:
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongo
+  namespace: default
+  labels:
+    app: mongo
+spec:
+  containers:
+  - name: mongo
+    image: mongo:4.2.8
+    imagePullPolicy: Always
+    ports:
+    - name: mongo
+      containerPort: 27017
+      hostPort: 27017
+    env:
+    - name: MONGO_INITDB_ROOT_USERNAME
+      value: "mongouser"
+    - name: MONGO_INITDB_ROOT_PASSWORD
+      value: "mongosecret"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: default
+  labels:
+    app: mongo
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+  selector:
+    app: mongo
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: default
+  name: stardog
+  labels:
+    app: stardog
+spec:
+  containers:
+  - name: stardog
+    image: jniestroy/stardog:latest
+    # volumeMounts:
+    # - name: config-volume
+    #   mountPath: /opt/mount/
+    env:
+    - name: STARDOG_LICENSE_PATH
+      value: /opt/mount/stardog-license-key.bin
+---
+apiVersion: v1
+kind: Service
+metadata:
+    namespace: default
+    name: stardog
+    labels:
+        app: stardog
+spec:
+  selector:
+    app: stardog
+  ports:
+  - protocol: TCP
+    port: 5820
+    targetPort: 5820
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mds
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mds
+  template:
+    metadata:
+      namespace: default
+      labels:
+        app: mds
+    spec:
+      containers:
+      - name: mds
+        image: jackofsum/mds:0.1.17
+        ports:
+        - containerPort: 80
+        env:
+        - name: "STARDOG_URI"
+          value: "http://stardog:5820"
+        - name: "STARDOG_DATABASE"
+          value: "ors"
+        - name: "STARDOG_USERNAME"
+          value: "admin"
+        - name: "STARDOG_PASSWORD"
+          value: "admin"
+        - name: "MONGO_URI"
+          value: "mongodb://mongouser:mongosecret@mongo"
+        - name: "MONGO_DB"
+          value: "ors"
+        - name: "MONGO_COL"
+          value: "ids"
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mds
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: mds
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transfer
+  namespace: default
+  labels:
+    app: transfer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer
+  template:
+    metadata:
+      namespace: default
+      labels:
+        app: transfer
+    spec:
+      containers:
+      - name: transfer
+        image: jniestroy/transfer:0.3
+        imagePullPolicy: Always
+        command: ["python3", "transfer.py"]
+        ports:
+        - containerPort: 5002
+        env:
+        - name: MINIO_URL
+          value: "http://minio:9000"
+        - name: MINIO_KEY
+          value: "breakfast"
+        - name: MINIO_SECRET
+          value: "breakfast"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: ORS_URL
+          value: "http://mds/"
+        - name: AUTH_SERVICE
+          value: "http://auth"
+        - name: OS_URL
+          value: "http://object-service/"
+        - name: AUTH_KEY
+          value: "test secret"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transfer
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 5002
+  selector:
+    app: transfer
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: object-service
+  labels:
+    app: object-service
+spec:
+  containers:
+  - name: object-service
+    image: jniestroy/object-service:0.2
+    imagePullPolicy: Always
+    command: ["python3", "main.py"]
+    ports:
+      - containerPort: 5005
+    env:
+      - name: MINIO_URL
+        value: "http://minio.default:9000"
+      - name: MINIO_KEY
+        value: "breakfast"
+      - name: MINIO_SECRET
+        value: "breakfast"
+      - name: PYTHONUNBUFFERED
+        value: "1"
+      - name: ORS_URL
+        value: "http://mds.default/"
+      - name: AUTH_SERVICE
+        value: "http://auth.default"
+      - name: OS_SERVICE
+        value: "http://object-service/"
+      - name: AUTH_KEY
+        value: "test secret"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: object-service
+  labels:
+    app: object-service
+spec:
+  selector:
+    app: object-service
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5005
+    protocol: TCP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: create-pod
+  namespace: default
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-creator
+rules:
+- apiGroups: [""]
+  resources: ["pods","services","pods/log","pods/status"]
+  verbs: ["create","get", "list", "watch","delete"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: test2
+subjects:
+- kind: ServiceAccount
+  name: create-pod
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: pod-creator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: compute
+  namespace: default
+  labels:
+    app: compute
+spec:
+  serviceAccountName: create-pod
+  containers:
+  - name: computesubmit
+    imagePullPolicy: Always
+    image: jniestroy/compute:0.4
+    env:
+      - name: MINIO_URL
+        value: "minio:9000"
+      - name: MINIO_ACCESS_KEY
+        value: "breakfast"
+      - name: MINIO_SECRET
+        value: "breakfast"
+      - name: PYTHONUNBUFFERED
+        value: "0"
+      - name: ORS_URL
+        value: "http://mds/"
+      - name: TRANSFER_URL
+        value: "http://transfer/"
+      - name: AUTH_SERVICE
+        value: "http://auth"
+      - name: AUTH_KEY
+        value: "test secret"
+  - name: computetracker
+    imagePullPolicy: Always
+    env:
+      - name: MINIO_URL
+        value: "minio:9000"
+      - name: MINIO_ACCESS_KEY
+        value: "breakfast"
+      - name: MINIO_SECRET
+        value: "breakfast"
+      - name: PYTHONUNBUFFERED
+        value: "0"
+      - name: ORS_URL
+        value: "http://mds/"
+    image: jniestroy/sparktracker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compute
+  namespace: default
+  labels:
+    app: compute
+spec:
+  selector:
+    app: compute
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eg
+  namespace: default
+  labels:
+    app: eg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eg
+  template:
+    metadata:
+      namespace: default
+      labels:
+        app: eg
+    spec:
+      containers:
+      - name: eg
+        image: jniestroy/eg
+        ports:
+        - containerPort: 5000
+        env:
+        - name: STARDOG_URL
+          value: "http://stardog:5820"
+        - name: STARDOG_USERNAME
+          value: "admin"
+        - name: STARDOG_PASSWORD
+          value: "admin"
+        - name: ORS_URL
+          value: "http://mds/"
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: "NO_AUTH"
+          value: "TRUE"
+        - name: AUTH_KEY
+          value: "test secret"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eg
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: eg
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: search
+  namespace: default
+  labels:
+    app: search
+spec:
+  containers:
+  - name: search
+    imagePullPolicy: Always
+    image: jniestroy/search:0.1
+    env:
+      - name: STARDOG_USERNAME
+        value: admin
+      - name: STARDOG_URL
+        value: http://stardog:5820/
+      - name: STARDOG_PASSWORD
+        value: admin
+      - name: PYTHONUNBUFFERED
+        value: "0"
+      - name: ORS_URL
+        value: http://mds/
+      - name: AUTH_KEY
+        value: "test secret"
+    command:
+        - python3
+        - search.py
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: search
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: visual
+  namespace: default
+  labels:
+    app: visual
+spec:
+  containers:
+  - name: visual
+    imagePullPolicy: Always
+    image: jniestroy/visual
+    ports:
+        - containerPort: 5000
+    env:
+      - name: PYTHONUNBUFFERED
+        value: "0"
+      - name: EG_URL
+        value: http://eg/
+      - name: AUTH_SERVICE
+        value: 'http://auth'
+      - name: AUTH_KEY
+        value: 'test secret'
+      - name: "NO_AUTH"
+        value: "TRUE"
+      - name: "LOCAL"
+        value: "TRUE"
+    command:
+        - python3
+        - "-u"
+        - main.py
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: visual
+  namespace: default
+  labels:
+    app: visual
+spec:
+  selector:
+    app: visual
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: default
+  labels:
+    app: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      namespace: default
+      labels:
+        app: auth
+    spec:
+     containers:
+     - name: auth
+       image: jniestroy/auth:0.2
+       imagePullPolicy: Always
+       ports:
+       - name: server
+         containerPort: 80
+       env:
+       - name: "GLOBUS_CLIENT_ID"
+         value: ""
+       - name: "GLOBUS_CLIENT_SECRET"
+         value: ""
+       - name: "GLOBUS_REDIRECT_URL"
+         value: ""
+       - name:  "MONGO_URI"
+         value: "mongodb://mongouser:mongosecret@mongo"
+       - name:  "MONGO_DB"
+         value: "users"
+       - name:  "MONGO_COL"
+         value: "users"
+       - name:  "ORS_URI"
+         value: "http://ors/"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: auth
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: testing-pod
+spec:
+  containers:
+  - name: testing-pod
+    image: jniestroy/testing-pod
+    command: ["jupyter","notebook","--allow-root","--NotebookApp.token=''","--NotebookApp.password=''", "/Demo"]
+    # Just spin & wait forever
+    # command: [ "/bin/bash", "-c", "--" ]
+    # args: [ "while true; do sleep 30; done;" ]
