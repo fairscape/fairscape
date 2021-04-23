@@ -28,3 +28,6 @@
 [submodule "clients/python-client"]
 	path = clients/python-client
 	url = https://github.com/fairscape/python-client
+[submodule "services/object-service"]
+	path = services/object-service
+	url = https://github.com/fairscape/object-service
