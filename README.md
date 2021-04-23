@@ -12,3 +12,11 @@ FAIRSCAPE can run nested or disjoint workflows and preserves provenance across t
 ## Documentation
 
 Install instructions, API documentation, and Demo: [HERE](https://fairscape.github.io/)
+
+To download all repostories for this release run:
+
+```shell
+git clone --recursive https://github.com/fairscape/fairscape
+```
+
+The latest version of each service is also available in their indivdual repostories. 
