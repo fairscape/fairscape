@@ -189,12 +189,14 @@ spec:
           value: "breakfast"
         - name: MINIO_SECRET
           value: "breakfast"
+        #PYTHONUNBUFFERED ensures python logs written to STDOUT
         - name: PYTHONUNBUFFERED
           value: "1"
         - name: ORS_URL
           value: "http://mds/"
         - name: AUTH_SERVICE
           value: "http://auth"
+        #OS = Object Service URL
         - name: OS_URL
           value: "http://object-service/"
         - name: AUTH_KEY
@@ -236,6 +238,7 @@ spec:
         value: "breakfast"
       - name: MINIO_SECRET
         value: "breakfast"
+      #PYTHONUNBUFFERED ensures python logs written to STDOUT
       - name: PYTHONUNBUFFERED
         value: "1"
       - name: ORS_URL
@@ -244,6 +247,7 @@ spec:
         value: "http://auth.default"
       - name: OS_SERVICE
         value: "http://object-service/"
+      #Auth key is key used to encrypt jwt
       - name: AUTH_KEY
         value: "test secret"
 ---
@@ -311,6 +315,7 @@ spec:
         value: "breakfast"
       - name: MINIO_SECRET
         value: "breakfast"
+      #PYTHONUNBUFFERED ensures python logs written to STDOUT
       - name: PYTHONUNBUFFERED
         value: "0"
       - name: ORS_URL
@@ -330,6 +335,7 @@ spec:
         value: "breakfast"
       - name: MINIO_SECRET
         value: "breakfast"
+      #PYTHONUNBUFFERED ensures python logs written to STDOUT
       - name: PYTHONUNBUFFERED
         value: "0"
       - name: ORS_URL
@@ -384,6 +390,7 @@ spec:
           value: "admin"
         - name: ORS_URL
           value: "http://mds/"
+        #PYTHONUNBUFFERED ensures python logs written to STDOUT
         - name: PYTHONUNBUFFERED
           value: "0"
         - name: "NO_AUTH"
