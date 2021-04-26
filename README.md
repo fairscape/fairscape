@@ -20,3 +20,7 @@ git clone --recursive https://github.com/fairscape/fairscape
 ```
 
 The latest version of each service is also available in their indivdual repostories. 
+
+## Deepnote Demos
+
+The Demos may also be run without installing FAIRSCAPE locally with Deepnote available [HERE](https://deepnote.com/project/Spark-Demo-vDQIIg6CQmi3jnX_N_GYNw/%2FSpark-Demo%2FKubernetes%20Demo-Client.ipynb)
