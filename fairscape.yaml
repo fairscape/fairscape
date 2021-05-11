@@ -16,6 +16,14 @@ spec:
         value: "breakfast"
       - name: MINIO_SECRET_KEY
         value: "breakfast"
+    # Uncomment to enable persistence for minio data across restart
+    #volumeMounts:
+        #- name: minio-data
+        #  mountPath: /data
+   #volumes:
+        #- name: minio-data
+        #hostPath:
+        #    path: /fairscape/minio
 ---
 apiVersion: v1
 kind: Service
@@ -53,6 +61,14 @@ spec:
       value: "mongouser"
     - name: MONGO_INITDB_ROOT_PASSWORD
       value: "mongosecret"
+# Uncomment to enable persistence for mongo data across restart
+    #volumeMounts:
+    #- name: mongo-data
+    #  mountPath: /data/db
+   #volumes:
+   #- name: mongo-data
+   #  hostPath:
+   #  path: /fairscape/mongo
 ---
 apiVersion: v1
 kind: Service
@@ -82,12 +98,18 @@ spec:
   containers:
   - name: stardog
     image: jniestroy/stardog:latest
-    # volumeMounts:
-    # - name: config-volume
-    #   mountPath: /opt/mount/
     env:
     - name: STARDOG_LICENSE_PATH
       value: /opt/mount/stardog-license-key.bin
+
+# uncomment for data persistence for stardog data
+   #volumeMounts:
+   # - name: stardog-data
+   #   mountPath: /var/opt/stardog/data
+  #volumes:
+  #- name: stardog-data
+  #  hostPath:
+  #    path: /fairscape/stardog
 ---
 apiVersion: v1
 kind: Service
