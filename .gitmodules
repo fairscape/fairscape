@@ -1,0 +1,13 @@
+[submodule "services/fairscape-server"]
+	path = services/fairscape-server
+	url = https://github.com/fairscape/fairscape_server
+[submodule "clients/fairscape-cli"]
+	path = clients/fairscape-cli
+	url = https://github.com/fairscape/fairscape-cli
+[submodule "clients/fairscape-gui-client"]
+	path = clients/fairscape-gui-client
+	url = https://github.com/fairscape/fairscape_gui_client
+[submodule "clients/fairscape-web-client"]
+	path = clients/fairscape-web-client
+	url = https://github.com/fairscape/fairscape_web_client
+	branch = refactor

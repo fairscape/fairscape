@@ -1,26 +1,47 @@
-# Fairscape monorepo
+# FAIRSCAPE Monorepo
 
-This repo contains all code for all fairscape framework components and clients.
+**Build AI-Ready Datasets with FAIRSCAPE**
 
+FAIRSCAPE provides a comprehensive framework to ensure your scientific data is not only FAIR but also prepared for AI/ML applications, underpinned by complete provenance through Evidence Graphs for enhanced explainability.
 
-## Abstract 
-Results of computational analyses require transparent disclosure of their supporting resources, while the analyses themselves often can be very large scale and involve multiple processing steps separated in time. Evidence for the correctness of any analysis should include not only a textual description, but also a formal record of the computations which produced the result, including accessible data and software with runtime parameters, environment, and personnel involved.  
-This repo describes FAIRSCAPE, a reusable computational framework, enabling simplified access to modern scalable cloud-based components. FAIRSCAPE fully implements the FAIR data principles and extends them to provide fully FAIR Evidence, including machine-interpretable provenance of datasets, software and computations, as metadata for all computed results.  
-The FAIRSCAPE microservices framework creates a complete Evidence Graph for every computational result, including persistent identifiers with metadata, resolvable to the software, computations, and datasets used in the computation; and stores a URI to the root of the graph in the result’s metadata. An ontology for Evidence Graphs, EVI (https://w3id.org/EVI), supports inferential reasoning over the evidence.  
-FAIRSCAPE can run nested or disjoint workflows and preserves provenance across them. It can run Apache Spark jobs, scripts, workflows, or user-supplied containers. All objects are assigned persistent IDs, including software. All results are annotated with FAIR metadata using the evidence graph model for access, validation, reproducibility, and re-use of archived data and software. 
+- **AI-Ready**: Primed for ML & Analytics
+- **FAIR Foundation**: Findable, Accessible, Interoperable, Reusable
+- **Evidence Graphs**: For XAI & Reproducibility
 
-## Documentation
+## Framework Overview
 
-Install instructions, API documentation, and Demo: [HERE](https://fairscape.github.io/)
+FAIRSCAPE is a computational framework written in Python that supports the AI Ready Criteria. It helps prepare components such as datasets, software, computations, runtime parameters, environment, and personnel involved in a computational analysis for AI/ML applications. It generates rich evidence supporting the AI-Readiness and explainability of the analysis by recording formal representations of the components and their interactions in the form of a graph called an Evidence Graph.
 
-To download all repostories for this release run:
+For every computational result, FAIRSCAPE creates a machine-interpretable Evidence Graph whose nodes and edges may contain persistent identifiers with metadata resolvable to the underlying components, enhancing transparency and trust in AI-driven insights.
+
+## Components
+
+### FAIRSCAPE Server
+
+The core backend service responsible for metadata management. Implements a RESTful API using FastAPI in Python. This service provides persistent globally unique identifiers (guids) as ARKS for many types of digital objects and maintains provenance metadata crucial for the AI-Readiness and explainability of the data science life-cycle.
+
+### FAIRSCAPE CLI
+
+A data validation and packaging utility for the FAIRSCAPE ecosystem. Provides a command line interface that allows client-side remote teams to create RO-Crates, structuring data for AI applications.
+
+### FAIRSCAPE GUI Client
+
+The FAIRSCAPE Electron App provides a user-friendly interface for packaging research objects and validating metadata, making it easier than ever to ensure your research data is FAIR (Findable, Accessible, Interoperable, and Reusable).
+
+### FAIRSCAPE Web Client
+
+A web-based interface for interacting with the FAIRSCAPE framework, providing accessible tools for managing and validating research data.
+
+## Summary
+
+FAIRSCAPE is a computational framework written in Python that supports the AI Ready Criteria as detailed [here](https://www.biorxiv.org/content/10.1101/2024.10.23.619844v4.full.pdf). It helps prepare components such as datasets, software, computations, runtime parameters, environment, and personnel involved in a computational analysis for AI/ML applications. It generates rich evidence supporting the AI-Readiness and explainability of the analysis by recording formal representations of the components and their interactions in the form of a graph called an Evidence Graph. For every computational result, FAIRSCAPE creates a machine-interpretable Evidence Graph whose nodes and edges may contain persistent identifiers with metadata resolvable to the underlying components, enhancing transparency and trust in AI-driven insights.
+
+FAIRSCAPE provides a command line client tool to package and validate the components with metadata, a schema generation and validation component for the datasets, and a REST API to perform various operations on the server-side.
+
+## Installation
+
+To download all repositories for this release run:
 
 ```shell
 git clone --recursive https://github.com/fairscape/fairscape
 ```
-
-The latest version of each service is also available in their indivdual repostories. 
-
-## Deepnote Demos
-
-The Demos may also be run without installing FAIRSCAPE locally with Deepnote available [HERE](https://deepnote.com/project/Spark-Demo-vDQIIg6CQmi3jnX_N_GYNw/%2FSpark-Demo%2FKubernetes%20Demo-Client.ipynb)
